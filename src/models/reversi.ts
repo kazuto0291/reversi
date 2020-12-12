@@ -27,18 +27,28 @@ export class Board {
 
     this.ref(p).state = this.turn;
 
+
     console.log(this.search(p));
 
-    if (this.turn === CellState.Black) { return this.turn = CellState.White;}
-    if (this.turn === CellState.White) { return this.turn = CellState.Black;}
+    this.next();
+
+
+    if (this.shouldPass()) { this.next(); }
+
   }
 // 現在のセルを返す
   public ref(p: Point): Cell {
     return this.rows[p.y].cells[p.x];
   }
 
+  public next() {
+    if (this.turn === CellState.Black) { return this.turn = CellState.White;}
+    if (this.turn === CellState.White) { return this.turn = CellState.Black;}
+  }
+
   // 再帰的に探索する。nextは次の探索座標を返す。
   public search(p : Point):Point[] {
+    if (!this.ref(p).isNone) return [];
     const self = this;
     const _search = (_p: Point ,next: (pre: Point) => Point, list: Point[]): Point[] => {
       const _next = next(_p);
@@ -62,6 +72,36 @@ export class Board {
     result = result.concat(_search(p, p => new Point(p.x - 1, p.y - 1), []));
     return result;
   }
+
+  public get blacks(): number {
+    let count = 0;
+    this.rows.forEach(r => {
+      count += r.blacks;
+    })
+    return count;
+  }
+
+  public get whites(): number {
+    let count = 0;
+    this.rows.forEach(r => {
+      count += r.whites;
+    })
+    return count;
+  }
+
+  // passすべきかどうか
+  // 全マス探索する
+  public shouldPass(): boolean {
+    for (let i = 0; i < 8; i++) {
+      for (let j =0; j < 8; j++) {
+        const reversedList = this.search(new Point(i, j))
+        if (reversedList.length > 0) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
 }
 
 export class Row {
@@ -72,6 +112,22 @@ export class Row {
   constructor(rowNumber: number) {
     this.num = rowNumber
     this.cells = [...Array(8).keys()].map(i => new Cell(i, rowNumber))
+  }
+
+  public get blacks(): number {
+    let count= 0;
+    this.cells.forEach(c => {
+      if (c.isBlack) count++
+    })
+    return count;
+  }
+
+  public get whites(): number {
+    let count =0;
+    this.cells.forEach(c => {
+      if(c.isWhite) count++
+    })
+    return count;
   }
 }
 

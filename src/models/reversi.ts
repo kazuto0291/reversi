@@ -18,15 +18,49 @@ export class Board {
 
   public put(p: Point) {
     //すでに石があるところには石を置かない。
-    if (!this.rows[p.y].cells[p.x].isNone) {return}
-    this.rows[p.y].cells[p.x].state = this.turn;
+    if (!this.ref(p).isNone) {return}
+
+    const reversedList = this.search(p);
+    // おける場所がないなら返す（置けない）
+    if (reversedList.length === 0) {return}
+    reversedList.forEach(p => this.ref(p).state = this.turn);
+
+    this.ref(p).state = this.turn;
+
+    console.log(this.search(p));
 
     if (this.turn === CellState.Black) { return this.turn = CellState.White;}
     if (this.turn === CellState.White) { return this.turn = CellState.Black;}
   }
+// 現在のセルを返す
+  public ref(p: Point): Cell {
+    return this.rows[p.y].cells[p.x];
+  }
 
+  // 再帰的に探索する。nextは次の探索座標を返す。
   public search(p : Point):Point[] {
-    return [];
+    const self = this;
+    const _search = (_p: Point ,next: (pre: Point) => Point, list: Point[]): Point[] => {
+      const _next = next(_p);
+      if (!_next.inBoard || self.ref(_next).isNone) {
+        return [];
+      }
+      if(self.ref(_next).state !==self.turn) {
+        list.push(_next);
+        return _search(_next, next, list);
+      }
+      return list;
+    }
+    let result: Point[] = [];
+    result = result.concat(_search(p, p => new Point(p.x, p.y + 1), []));
+    result = result.concat(_search(p, p => new Point(p.x, p.y - 1), []));
+    result = result.concat(_search(p, p => new Point(p.x + 1, p.y), []));
+    result = result.concat(_search(p, p => new Point(p.x - 1, p.y), []));
+    result = result.concat(_search(p, p => new Point(p.x + 1, p.y + 1), []));
+    result = result.concat(_search(p, p => new Point(p.x - 1, p.y + 1), []));
+    result = result.concat(_search(p, p => new Point(p.x + 1, p.y - 1), []));
+    result = result.concat(_search(p, p => new Point(p.x - 1, p.y - 1), []));
+    return result;
   }
 }
 
@@ -74,6 +108,10 @@ export class Point {
   constructor(x: number, y: number) {
     this.x = x;
     this.y = y;
+  }
+
+  public get inBoard() {
+    return 0 <= this.x && this.x <= 7 && 0 <= this.y && this.y <= 7;
   }
 }
 

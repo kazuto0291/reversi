@@ -5,6 +5,7 @@
 export class Board {
 　
   public rows: Row[];
+  public turn:CellState = CellState.Black;
 
   constructor() {
     this.rows = [...Array(8).keys()].map(i => new Row(i));
@@ -16,7 +17,12 @@ export class Board {
   }
 
   public put(x: number, y: number) {
-    this.rows[y].cells[x].state = CellState.Black;
+    //すでに石があるところには石を置かない。
+    if (!this.rows[y].cells[x].isNone) {return}
+    this.rows[y].cells[x].state = this.turn;
+
+    if (this.turn === CellState.Black) { return this.turn = CellState.White};
+    if (this.turn === CellState.White) { return this.turn = CellState.Black};
   }
 }
 
@@ -51,6 +57,9 @@ export class Cell {
     return this.state === CellState.White;
   }
 
+  public get isNone() {
+    return this.state === CellState.None;
+  }
 }
 
 // enum--限られた有限個数（決まった値）の状態を持つ

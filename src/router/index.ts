@@ -16,7 +16,7 @@ const routes: RouteConfig[] = [
     path: '/game',
     name: 'VGame',
     component: VGame
-  }
+  },
 ];
 
 const router = new VueRouter({

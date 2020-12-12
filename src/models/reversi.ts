@@ -16,13 +16,17 @@ export class Board {
     this.rows[4].cells[3].state = CellState.Black;
   }
 
-  public put(x: number, y: number) {
+  public put(p: Point) {
     //すでに石があるところには石を置かない。
-    if (!this.rows[y].cells[x].isNone) {return}
-    this.rows[y].cells[x].state = this.turn;
+    if (!this.rows[p.y].cells[p.x].isNone) {return}
+    this.rows[p.y].cells[p.x].state = this.turn;
 
-    if (this.turn === CellState.Black) { return this.turn = CellState.White};
-    if (this.turn === CellState.White) { return this.turn = CellState.Black};
+    if (this.turn === CellState.Black) { return this.turn = CellState.White;}
+    if (this.turn === CellState.White) { return this.turn = CellState.Black;}
+  }
+
+  public search(p : Point):Point[] {
+    return [];
   }
 }
 
@@ -49,16 +53,27 @@ export class Cell {
     this.y = y;
   }
 
-  public get isBlack() {
+  public get isBlack(): boolean {
     return this.state === CellState.Black;
   }
 
-  public get isWhite() {
+  public get isWhite(): boolean {
     return this.state === CellState.White;
   }
 
-  public get isNone() {
+  public get isNone(): boolean {
     return this.state === CellState.None;
+  }
+}
+
+// ある座標x, yに石を置くときにそこに石をおいたらひっくり返る座標全体のリストが取得できるようにPointクラスを作る
+export class Point {
+  public x: number;
+  public y: number;
+
+  constructor(x: number, y: number) {
+    this.x = x;
+    this.y = y;
   }
 }
 

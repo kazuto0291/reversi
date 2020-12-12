@@ -15,7 +15,7 @@ const routes: RouteConfig[] = [
   {
     path: '/game',
     name: 'VGame',
-    component: VGame
+    component: VGame,
   },
 ];
 
